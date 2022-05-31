@@ -14,7 +14,7 @@ class Geo:
         self.gmt = gmt
         self.lat = lat
         self.long = long
-        self.altura = 3203
+        self.altura = 2975
         self.df = pd.DataFrame()
         self.df['Fecha'] =  pd.date_range(start='1/1/2010 00:00:00', end='31/12/2010 23:59:00', freq= freq+' min')
         self.df['Fecha'] =  self.df['Fecha'] + pd.DateOffset(minutes=7.5)
@@ -155,17 +155,19 @@ def generateGHIcc(TOA, AM, ktrp):
     except Exception: 
         return 0
 
-df = Geo(freq='15', lat=-22.75, long=-65.07, gmt=-3).df
+df = Geo(freq='15', lat=-23.20, long=-65.35, gmt=-3).df
 
-salta  = promedio.prom('./Data/alfarcito-s.csv')
-salta['TOA'] = salta['TOA'] *4
-salta['Clear sky GHI'] = salta['Clear sky GHI'] *4
+ero  = promedio.prom('./Data/humahuaca.csv')
+ero['TOA'] = ero['TOA'] *4
+ero['Clear sky GHI'] = ero['Clear sky GHI'] *4
 
 
-salta['TOA'] = salta['TOA'].shift(-12)
-salta['Clear sky GHI'] = salta['Clear sky GHI'].shift(-12)
-salta.fillna(0, inplace=True)
-df['GHImc'] = salta['Clear sky GHI'].copy()
+ero['TOA'] = ero['TOA'].shift(-12)
+ero['Clear sky GHI'] = ero['Clear sky GHI'].shift(-12)
+ero.fillna(0, inplace=True)
+
+
+df['GHImc'] = ero['Clear sky GHI'].copy()
 
 
 
@@ -173,61 +175,32 @@ df2 = df.copy()
 df = df[df['CTZ']>=0]
 
 
-df = df[['TOA','N','Mak','GHImc','GHIargp']]
+df = df[['TOA','N','Mak','GHImc']]
+
+ktrs = np.arange(0.5, 0.9999, 0.0001)
+minKtErrors = []
+arrayDia = []
+arrayKtr = []
+arrayMSE = []
+for dia in range(1,366):
+    myDf = df[df['N']==dia]
+    dayDict = {}
+    for ktr in ktrs:
+        GHIcc = myDf.apply(lambda r: generateGHIcc(r['TOA'], r['Mak'], ktr), axis=1)
+        mse = mean_squared_error(myDf['GHImc'], GHIcc)
+        arrayDia.append(dia)
+        arrayKtr.append(ktr)
+        arrayMSE.append(mse)
+        dayDict.update({ktr: mse })
+    
+    valMin =  min(dayDict, key=dayDict.get)
+    minKtErrors.append(valMin)
+    
+    
+dfMin = pd.DataFrame()
+
+dfMin['humahuaca'] = minKtErrors
+dfMin.to_csv('humahuacaMin.csv',sep=";", index=False)
 
 
-def miKTRP(A):
-    return 0.43 * A**0.084
-
-
-print(miKTRP(3203))
-
-df['GHIargp2'] = df.apply(lambda r: generateGHIcc(r['TOA'], r['Mak'], miKTRP(3203)), axis=1)
-
-
-# df=df[df['N']==160]
-
-
-# import matplotlib.pyplot as plt
-# plt.plot(df['GHIargp2'], label="ARGP2")
-# plt.plot(df['GHImc'], label="Mc")
-# plt.plot(df['GHIargp'], label="ARGP")
-# plt.legend()
-# plt.show()
-
-
-
-def relative_root_mean_squared_error(true, pred):
-    num = np.sum(np.square(true - pred))
-    den = np.sum(np.square(pred))
-    squared_error = num/den
-    rrmse_loss = np.sqrt(squared_error)
-    return rrmse_loss
-
-
-def rRMSD(true, pred):
-    e = 0
-    for i, item in enumerate(true):
-        e = e + (pred[i] - true[i])**2
-    e = e/len(true)
-    e = math.sqrt(e)
-    return e/true.mean()
-
-med = df['GHImc']
-
-
-
-
-
-error_argp = relative_root_mean_squared_error(med, df['GHIargp'])*100
-error_argpv2 = relative_root_mean_squared_error(med, df['GHIargp2'])*100
-print(f"error_argp: {error_argp}   /n error_argpv2: {error_argpv2}")
-
-
-rrmsd_argp = rRMSD(df['GHImc'].values, df['GHIargp'].values)*100
-
-rrmsd_argpv2 = rRMSD(df['GHImc'].values, df['GHIargp2'].values)*100
-print(f"rrmsd_argp: {rrmsd_argp}   /n rrmsd_argpv2: {rrmsd_argpv2}")
-
-
-
+print(dfMin.describe())

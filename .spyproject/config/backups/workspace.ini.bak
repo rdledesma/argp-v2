@@ -8,5 +8,5 @@ recent_files = ['geotafiv.py']
 
 [main]
 version = 0.2.0
-recent_files = ['geoHombreMuerto.py', 'main.py', 'geoLavinia.py']
+recent_files = ['geoBsas.py', 'geoCafayate.py', 'geoSusques.py', 'main.py', 'geoHumahuaca.py']
 

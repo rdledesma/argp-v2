@@ -14,7 +14,7 @@ class Geo:
         self.gmt = gmt
         self.lat = lat
         self.long = long
-        self.altura = 3775
+        self.altura = 3758
         self.df = pd.DataFrame()
         self.df['Fecha'] =  pd.date_range(start='1/1/2010 00:00:00', end='31/12/2010 23:59:00', freq= freq+' min')
         self.df['Fecha'] =  self.df['Fecha'] + pd.DateOffset(minutes=7.5)
@@ -155,9 +155,9 @@ def generateGHIcc(TOA, AM, ktrp):
     except Exception: 
         return 0
 
-df = Geo(freq='15', lat=-24.2, long=-66.32, gmt=-3).df
+df = Geo(freq='15', lat=-24.22, long=-66.32, gmt=-3).df
 
-ero  = promedio.prom('./Data/bsas.csv')
+ero  = promedio.prom('./Data/sanco.csv')
 ero['TOA'] = ero['TOA'] *4
 ero['Clear sky GHI'] = ero['Clear sky GHI'] *4
 
@@ -200,7 +200,7 @@ for dia in range(1,366):
 dfMin = pd.DataFrame()
 
 dfMin['Sanco'] = minKtErrors
-dfMin.to_csv('Sanco.csv',sep=";", index=False)
+dfMin.to_csv('sancoMin.csv',sep=";", index=False)
 
 
 print(dfMin.describe())

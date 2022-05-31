@@ -173,9 +173,13 @@ df2 = df.copy()
 df = df[df['CTZ']>=0]
 
 
+
+def miKTRP(A):
+    return 0.43 * A**0.084
+
 df = df[['TOA','N','Mak','GHImc','GHIargp']]
 
-df['GHIargp2'] = df.apply(lambda r: generateGHIcc(r['TOA'], r['Mak'], 0.7885367), axis=1)
+df['GHIargp2'] = df.apply(lambda r: generateGHIcc(r['TOA'], r['Mak'], miKTRP(453)), axis=1)
 
 
 # df=df[df['N']==160]
