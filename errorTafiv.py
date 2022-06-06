@@ -14,7 +14,7 @@ class Geo:
         self.gmt = gmt
         self.lat = lat
         self.long = long
-        self.altura = 1385
+        self.altura = 2014
         self.df = pd.DataFrame()
         self.df['Fecha'] =  pd.date_range(start='1/1/2010 00:00:00', end='31/12/2010 23:59:00', freq= freq+' min')
         self.df['Fecha'] =  self.df['Fecha'] + pd.DateOffset(minutes=7.5)
@@ -155,11 +155,11 @@ def generateGHIcc(TOA, AM, ktrp):
     except Exception: 
         return 0
 
-df = Geo(freq='15', lat=-24.60, long=-65.38, gmt=-3).df
+df = Geo(freq='15', lat=-26.84, long=-65.69, gmt=-3).df
 
-salta  = promedio.prom('./Data/Lacaldera.csv')
+salta  = promedio.prom('./Data/tafivalle.csv')
 salta['TOA'] = salta['TOA'] *4
-salta['Clear sky GHI'] = salta['Clear sky GHI'] * 4
+salta['Clear sky GHI'] = salta['Clear sky GHI'] *4
 
 
 salta['TOA'] = salta['TOA'].shift(-12)
@@ -173,17 +173,17 @@ df2 = df.copy()
 df = df[df['CTZ']>=0]
 
 
+df = df[['TOA','N','Mak','GHImc','GHIargp']]
+
+
 def miKTRP(A):
     return 0.54 * A**0.053
 
-print(miKTRP(1385))
 
 
+print(miKTRP(2014))
 
-
-df = df[['TOA','N','Mak','GHImc','GHIargp']]
-
-df['GHIargp2'] = df.apply(lambda r: generateGHIcc(r['TOA'], r['Mak'],miKTRP(1385)), axis=1)
+df['GHIargp2'] = df.apply(lambda r: generateGHIcc(r['TOA'], r['Mak'], miKTRP(2014)), axis=1)
 
 
 # df=df[df['N']==160]
@@ -198,7 +198,7 @@ df['GHIargp2'] = df.apply(lambda r: generateGHIcc(r['TOA'], r['Mak'],miKTRP(1385
 
 
 
-def relative_root_mean_squared_error(true, pred):
+def rRMSE(true, pred):
     num = np.sum(np.square(true - pred))
     den = np.sum(np.square(pred))
     squared_error = num/den
@@ -206,11 +206,23 @@ def relative_root_mean_squared_error(true, pred):
     return rrmse_loss
 
 
-
+def rRMSD(true, pred):
+    e = 0
+    for i, item in enumerate(true):
+        e = e + (pred[i] - true[i])**2
+    e = e/len(true)
+    e = math.sqrt(e)
+    return e/true.mean()
 
 med = df['GHImc']
-error_argp = relative_root_mean_squared_error(med, df['GHIargp'])*100
-error_argpv2 = relative_root_mean_squared_error(med, df['GHIargp2'])*100
-error_argp = relative_root_mean_squared_error(med, df['GHIargp'])*100
-error_argpv2 = relative_root_mean_squared_error(med, df['GHIargp2'])*100
+
+
+
+
+
+error_argp = rRMSE(med, df['GHIargp'])*100
+error_argpv2 = rRMSE(med, df['GHIargp2'])*100
 print(f"error_argp: {error_argp}   /n error_argpv2: {error_argpv2}")
+
+
+

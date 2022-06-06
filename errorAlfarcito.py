@@ -177,7 +177,7 @@ df = df[['TOA','N','Mak','GHImc','GHIargp']]
 
 
 def miKTRP(A):
-    return 0.43 * A**0.084
+    return 0.54 * A**0.053
 
 
 print(miKTRP(3203))

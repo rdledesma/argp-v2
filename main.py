@@ -30,10 +30,13 @@ df['KTR'] = df['KTR'].str.replace(',', '.', regex=True)
 df['KTR'] = pd.to_numeric(df['KTR'])
     
 
-df = df.sort_values(by=['ALT'], ascending=False)
+df = df.sort_values(by=['ALT'], ascending=True)
 
 
 df = df[df['ALT']>1000]
+
+
+
 
 
 
@@ -93,14 +96,14 @@ plt.scatter(df['ALT'], df['KTR'])
 #plt.plot(predict_2, 'g' ,label="n=2", linewidth=2)
 #plt.plot(predict_5, 'b' ,label="n=4", linewidth=2)
 plt.ylabel('KTRP')
-plt.xlabel('ALTURA')
+plt.xlabel('m.s.n.m')
 plt.legend()
 plt.grid()
 plt.title('ALT vs KTRP')
 
 ax = plt.gca()
-ax.set_xlim([0, 5000])
-ax.set_ylim([0.3, 1])
+ax.set_xlim([1000, 5000])
+ax.set_ylim([0.5, 1])
 
 plt.show()
 
